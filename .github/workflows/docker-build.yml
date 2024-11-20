@@ -1,9 +1,9 @@
-name: Build and Attach Docker Image to Release
+name: Build and Publish Docker Image to Releases
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
 
 jobs:
   build-and-release:
@@ -22,14 +22,27 @@ jobs:
       - name: Save Docker image to tar
         run: |
           docker save habr-automation > habr-automation.tar
+          mkdir -p artifacts
+          mv habr-automation.tar artifacts/
 
-      # Шаг 4: Загрузка в релиз
-      - name: Upload Docker image to release
-        uses: actions/upload-release-asset@v1
+      # Шаг 4: Создание релиза
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v1.0.0  # Обновляйте для новых версий
+          release_name: "Docker Image Release v1.0.0"
+          body: "This release includes the Docker image for the habr-automation script."
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Шаг 5: Загрузка артефакта в релиз
+      - name: Upload Docker tar to Release
+        uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./habr-automation.tar
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/habr-automation.tar
           asset_name: habr-automation.tar
           asset_content_type: application/x-tar
