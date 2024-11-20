@@ -16,5 +16,9 @@ COPY requirements.txt /app/
 # Установка Python-зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Установка SSH-клиента
+RUN apt-get update && apt-get install -y openssh-client \
+    && mkdir -p ~/.ssh && chmod 0700 ~/.ssh
+
 # Команда запуска по умолчанию
 CMD ["bash"]
