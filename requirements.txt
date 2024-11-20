@@ -1,0 +1,4 @@
+transliterate
+pillow
+beautifulsoup4
+requests
