@@ -1,13 +1,17 @@
-name: Build and Publish Docker Image to Releases
+name: Build Docker Image on PR and Merge
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
 
 jobs:
-  build-and-release:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       # Шаг 1: Клонируем код из репозитория
       - name: Checkout code
@@ -25,12 +29,21 @@ jobs:
           mkdir -p artifacts
           mv habr-automation.tar artifacts/
 
-      # Шаг 4: Создание релиза
+      # Шаг 4: Загрузка артефактов (только для Pull Request)
+      - name: Upload artifact for PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: habr-automation-tar
+          path: artifacts/habr-automation.tar
+
+      # Шаг 5: Создание релиза (только для main)
       - name: Create Release
+        if: ${{ github.event_name == 'push' }}
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0  # Обновляйте для новых версий
+          tag_name: v1.0.0
           release_name: "Docker Image Release v1.0.0"
           body: "This release includes the Docker image for the habr-automation script."
           draft: false
@@ -38,8 +51,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Шаг 5: Загрузка артефакта в релиз
+      # Шаг 6: Загрузка артефакта в релиз (только для main)
       - name: Upload Docker tar to Release
+        if: ${{ github.event_name == 'push' }}
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
