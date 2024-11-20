@@ -11,9 +11,10 @@ WORKDIR /app
 
 # Копирование файлов проекта
 COPY changed-habr-articles/ /app/
+COPY requirements.txt /app/
 
-# Установка зависимостей (если есть requirements.txt)
-# RUN pip install --no-cache-dir -r requirements.txt
+# Установка Python-зависимостей
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Команда запуска по умолчанию
 CMD ["bash"]
