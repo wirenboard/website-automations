@@ -12,7 +12,7 @@
 
 Вы можете установить их с помощью команды:
 ```bash
-pip install requests transliterate pillow
+pip install -r requirements.txt
 ```
 
 ## Запуск скрипта
